@@ -1,0 +1,58 @@
+#!/usr/bin/python3
+
+# Author: Matthias Maderer
+# E-Mail: edvler@edvler-blog.de
+# URL: https://github.com/edvler/check_mk_urbackup-check
+# License: See https://github.com/edvler/check_mk_urbackup-check
+
+import urbackup_api
+import time
+import datetime
+import configparser
+import io
+from pathlib import Path
+import sys
+
+#convert linux-time to timestamp
+def unixTimeStampToDate(unix_stamp):
+    return datetime.datetime.fromtimestamp(unix_stamp)
+
+config = configparser.ConfigParser()
+config.read('/usr/lib/check_mk_agent/plugins/urbackup-check.ini')
+
+url = config.get('server', 'url')
+user = config.get('server', 'user')
+password = config.get('server', 'password')
+
+#connect string
+server = urbackup_api.urbackup_server(url, user, password)
+
+#query client infos
+clients = server.get_status()
+
+#generate output for check_mk
+print ('<<<urbackup-check>>>')
+for client in clients:
+    
+    #Check if no backup exists
+    if client["lastbackup"] == 0:
+        filestamp_conv='-'
+    else:
+        filestamp_conv=unixTimeStampToDate(client["lastbackup"]).strftime('%Y-%m-%d_%H:%M')
+
+    if client["lastbackup_image"] == 0:
+        imagestamp_conv='-'
+    else:
+        imagestamp_conv=unixTimeStampToDate(client["lastbackup_image"]).strftime('%Y-%m-%d_%H:%M')
+
+    #Print infos
+    print ("{name};;;;;{filestamp};;;;;{fileok};;;;;{imagestamp};;;;;{imageok}".format(
+           name=client["name"], 
+           filestamp=filestamp_conv,
+           imagestamp=imagestamp_conv,
+           fileok=client["file_ok"],
+           imageok=client["image_ok"],
+           ))
+
+#Example string from api
+#{'os_version_string': 'Microsoft Windows 7 Professional Service Pack 1 (build 7601), 32-Bit', 'groupname': '', 'os_simple': 'windows', 'online': False, 'ip': '-', 'name': 'FMT-PC', 'lastbackup_image': 0, 'delete_pending': '', 'last_filebackup_issues': 0, 'file_ok': False, 'lastseen': 1518290865, 'processes': [], 'status': 0, 'image_ok': False, 'id': 9, 'client_version_string': '2.1.17', 'lastbackup': 0}
