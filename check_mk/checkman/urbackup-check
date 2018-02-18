@@ -1,0 +1,40 @@
+title: Plugin to check UrBackup backup status 
+agents: linux
+author: Matthias Maderer <edvler@edvler-blog.de>
+license: See https://github.com/edvler/check_mk_urbackup-check
+distribution: check_mk
+description:
+ This check runs on servers with Urbackup installed.
+
+ It reads the current status via the UrBackup API.
+ See https://github.com/uroni/urbackup-server-python-web-api-wrapper for API informations.
+
+ There are two modi avaliable.
+ - Use the status provided by UrBackup. 
+ This is the same as Status page of the Urbackup Webserver (the screen which shows if filebackup status and imagebackup stats is ok).
+ If the status is red at the Urbackup Status page, then the check gets {critical} it the status is ok then the check is {ok}.
+
+ - Use the backup age to check if backup is valid 
+ The service gets {critical} if no backup exists or the backup is
+ older than 30 hours. It gets {warning} if the backup is older than 26 hours.
+
+ The {critical} and {warning} limits can be configured in WATO.
+ The check can also be disabled for a machine and for a backup type in UrBackup.
+ It's possible to configure a global rule with matches
+ all hosts and backup types (and then affects all backups). On the opposite you can configure
+ rules, which applies to one specific service on one host only.
+
+ See WATO -> Host & Service Parameters. Search for urbackup.
+
+ Newly added machones in UrBackup are displayed as new service by the check_mk
+ inventory check.
+ 
+ Check https://github.com/edvler/check_mk_urbackup-check
+ for more informations.
+
+inventory:
+ One service will be created for each machine in UrBackup.
+ If no backup exists or the backup is older as 26 hours 
+ the services changes to warning or error.
+ Newly created VM guest are displayed as new service by the check_mk
+ inventory check.

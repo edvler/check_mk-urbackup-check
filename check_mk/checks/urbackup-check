@@ -37,7 +37,7 @@ def check_urbackup(item, params, info):
 
    #return 0 if check of backups should not be done
    if params['check_backup'] == 'ignore':
-        return 0, 'UrBackups not checked for ' + machine_name +  '!'
+        return 0, machine_name +  ' ' + backup_type + ' checks are disabled!'
 
    for line in info:
 	machine_infos = line[0].split(";;;;;")

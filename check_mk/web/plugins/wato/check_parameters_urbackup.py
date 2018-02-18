@@ -22,7 +22,7 @@ register_check_parameters(
                    ]
 		  )
             ),
-            ( "mode",
+            ( "modi",
               DropdownChoice(
                   title = _("Use the status from UrBackup (see startpage) or use backup age for checks"),
                   help=_("Choose how the status of the backup should be determined"),
