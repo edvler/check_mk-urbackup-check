@@ -1,21 +1,21 @@
 title: Plugin to check UrBackup backup status 
 agents: linux
 author: Matthias Maderer <edvler@edvler-blog.de>
-license: See https://github.com/edvler/check_mk_urbackup-check
+license: GPLv2
 distribution: check_mk
 description:
- This check runs on servers with Urbackup installed.
+ This check runs on servers with UrBackup installed.
 
  It reads the current status via the UrBackup API.
  See https://github.com/uroni/urbackup-server-python-web-api-wrapper for API informations.
 
  There are two modi avaliable.
  - Use the status provided by UrBackup. 
- This is the same as Status page of the Urbackup Webserver (the screen which shows if filebackup status and imagebackup stats is ok).
- If the status is red at the Urbackup Status page, then the check gets {critical} it the status is ok then the check is {ok}.
+ This is the same as Status page of the Urbackup Webserver (the screen which shows if filebackup status and imagebackup stats is ok or not).
+ If the status is red at the Urbackup Status page, then the check gets {critical} otherwise, if the status is ok then the check is {ok}.
 
- - Use the backup age to check if backup is valid 
- The service gets {critical} if no backup exists or the backup is
+ - Use the backup age to check if backup is valid
+ The default is that the service gets {critical} if no backup exists or the backup is
  older than 30 hours. It gets {warning} if the backup is older than 26 hours.
 
  The {critical} and {warning} limits can be configured in WATO.
@@ -33,8 +33,9 @@ description:
  for more informations.
 
 inventory:
- One service will be created for each machine in UrBackup.
- If no backup exists or the backup is older as 26 hours 
- the services changes to warning or error.
- Newly created VM guest are displayed as new service by the check_mk
+ One service will be created for each machine and backuptype in UrBackup.
+ If no backup exists or the backup is older than 26 hours 
+ the services changes to warning, if it's older than 30 hours the check
+ status changes to error.
+ Newly added machines in UrBackup are displayed as new service by the check_mk
  inventory check.

@@ -3,19 +3,15 @@
 # Author: Matthias Maderer
 # E-Mail: edvler@edvler-blog.de
 # URL: https://github.com/edvler/check_mk_urbackup-check
-# License: See https://github.com/edvler/check_mk_urbackup-check
+# License: GPLv2
 
 import urbackup_api
 import time
-import datetime
 import configparser
-import io
-from pathlib import Path
-import sys
 
 #convert linux-time to timestamp
 def unixTimeStampToDate(unix_stamp):
-    return datetime.datetime.fromtimestamp(unix_stamp)
+    return time.localtime(unix_stamp)
 
 config = configparser.ConfigParser()
 config.read('/usr/lib/check_mk_agent/plugins/urbackup-check.ini')
@@ -27,32 +23,46 @@ password = config.get('server', 'password')
 #connect string
 server = urbackup_api.urbackup_server(url, user, password)
 
+
 #query client infos
 clients = server.get_status()
+
+#Example string from UrBackup API
+#
+# {'os_version_string': 'Microsoft Windows 7 Professional Service Pack 1 (build 7601), 32-Bit', 'groupname': '', 'os_simple': 'windows', 'online': False, 'ip': '-', 'name': 'FMT-PC', 'lastbackup_image': 0, 'delete_pending': '', 'last_filebackup_issues': 0, 'file_ok': False, 'lastseen': 1518290865, 'processes': [], 'status': 0, 'image_ok': False, 'id': 9, 'client_version_string': '2.1.17', 'lastbackup': 0}
 
 #generate output for check_mk
 print ('<<<urbackup-check>>>')
 for client in clients:
-    
-    #Check if no backup exists
+    #check if no backup exists
     if client["lastbackup"] == 0:
         filestamp_conv='-'
     else:
-        filestamp_conv=unixTimeStampToDate(client["lastbackup"]).strftime('%Y-%m-%d_%H:%M')
+	filestamp_conv=time.strftime('%Y-%m-%d_%H:%M', unixTimeStampToDate(client["lastbackup"]))
 
     if client["lastbackup_image"] == 0:
         imagestamp_conv='-'
     else:
-        imagestamp_conv=unixTimeStampToDate(client["lastbackup_image"]).strftime('%Y-%m-%d_%H:%M')
+	imagestamp_conv=time.strftime('%Y-%m-%d_%H:%M', unixTimeStampToDate(client["lastbackup_image"]))
 
-    #Print infos
+    #print infos
     print ("{name};;;;;{filestamp};;;;;{fileok};;;;;{imagestamp};;;;;{imageok}".format(
-           name=client["name"], 
-           filestamp=filestamp_conv,
-           imagestamp=imagestamp_conv,
-           fileok=client["file_ok"],
-           imageok=client["image_ok"],
-           ))
+        name=client["name"], 
+        filestamp=filestamp_conv,
+        imagestamp=imagestamp_conv,
+        fileok=client["file_ok"],
+        imageok=client["image_ok"],
+        ))
 
-#Example string from api
-#{'os_version_string': 'Microsoft Windows 7 Professional Service Pack 1 (build 7601), 32-Bit', 'groupname': '', 'os_simple': 'windows', 'online': False, 'ip': '-', 'name': 'FMT-PC', 'lastbackup_image': 0, 'delete_pending': '', 'last_filebackup_issues': 0, 'file_ok': False, 'lastseen': 1518290865, 'processes': [], 'status': 0, 'image_ok': False, 'id': 9, 'client_version_string': '2.1.17', 'lastbackup': 0}
+# Example agent output
+#
+# <<<urbackup-check>>>
+# FMT-PC;;;;;-;;;;;False;;;;;-;;;;;False
+# NB03;;;;;-;;;;;False;;;;;2017-05-15_08:51;;;;;False
+# PC01;;;;;2018-02-16_18:05;;;;;False;;;;;2018-02-16_19:26;;;;;True
+# PC02;;;;;2018-02-19_07:44;;;;;True;;;;;2018-02-19_07:56;;;;;True
+# PC03;;;;;2018-02-12_00:08;;;;;False;;;;;2017-05-15_09:36;;;;;False
+# PC04;;;;;-;;;;;False;;;;;2018-01-01_00:00;;;;;False
+# PC05;;;;;2017-10-02_00:08;;;;;False;;;;;2018-02-17_12:02;;;;;True
+# pc-xx;;;;;-;;;;;False;;;;;2017-05-15_09:16;;;;;False
+# swyx01;;;;;2018-02-19_00:02;;;;;True;;;;;2018-02-19_00:50;;;;;True
