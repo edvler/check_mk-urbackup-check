@@ -7,12 +7,15 @@ description:
  This check runs on servers with UrBackup installed.
 
  It reads the current status via the UrBackup API.
- See https://github.com/uroni/urbackup-server-python-web-api-wrapper for API informations.
+ See https://github.com/uroni/urbackup-server-python-web-api-wrapper
+ for API informations.
 
  There are two modi avaliable.
  - Use the status provided by UrBackup. 
- This is the same as Status page of the Urbackup Webserver (the screen which shows if filebackup status and imagebackup stats is ok or not).
- If the status is red at the Urbackup Status page, then the check gets {critical} otherwise, if the status is ok then the check is {ok}.
+ This is the same as Status page of the Urbackup Webserver 
+ (the screen which shows if filebackup status and imagebackup stats is ok or not).
+ If the status is red at the Urbackup Status page, then the check gets {critical}
+ otherwise, if the status is ok then the check is {ok}.
 
  - Use the backup age to check if backup is valid
  The default is that the service gets {critical} if no backup exists or the backup is
@@ -21,21 +24,22 @@ description:
  The {critical} and {warning} limits can be configured in WATO.
  The check can also be disabled for a machine and for a backup type in UrBackup.
  It's possible to configure a global rule with matches
- all hosts and backup types (and then affects all backups). On the opposite you can configure
- rules, which applies to one specific service on one host only.
+ all hosts and backup types (and then affects all backups). On the opposite you 
+ can configure rules, which applies to one specific service on one host only.
 
  See WATO -> Host & Service Parameters. Search for urbackup.
 
- Newly added machones in UrBackup are displayed as new service by the check_mk
+ Newly added machines in UrBackup are displayed as new service by the check_mk
  inventory check.
+
+ - Installation
+ 1. Install UrBackup API. (https://github.com/uroni/urbackup-server-python-web-api-wrapper)
+ 2. Create urbackup-check.ini in $MK_CONFDIR folder (usually /etc/check_mk) from example file
+    https://github.com/edvler/check_mk_urbackup-check/etc/check_mk/urbackup-check.ini    
  
  Check https://github.com/edvler/check_mk_urbackup-check
  for more informations.
 
 inventory:
- One service will be created for each machine and backuptype in UrBackup.
- If no backup exists or the backup is older than 26 hours 
- the services changes to warning, if it's older than 30 hours the check
- status changes to error.
- Newly added machines in UrBackup are displayed as new service by the check_mk
- inventory check.
+ One service will be created for each machine and backuptype
+ (imagebackup and filebackup) in UrBackup.
