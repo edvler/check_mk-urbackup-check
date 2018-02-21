@@ -6,6 +6,7 @@
 # License: GPLv2
 
 
+
 # Example agent output
 # Format:
 # "{name};;;;;{filestamp};;;;;{fileok};;;;;{imagestamp};;;;;{imageok}"
@@ -87,9 +88,9 @@ def check_urbackup(item, params, info):
                 return 0, infotext
 
             else:
-                return 2, 'No ' + backup_type + ' done yet'
+                return 2, 'no ' + backup_type + ' done yet'
 
-    return 3, "Error occured in check plugin. Please post a issue on https://github.com/edvler/check_mk_urbackup-check/issues inlcuding the output of the agent plugin /usr/lib/check_mk_agent/plugins/urbackup-check"
+    return 3, "error occured in check plugin. Please post a issue on https://github.com/edvler/check_mk_urbackup-check/issues inlcuding the output of the agent plugin /usr/lib/check_mk_agent/plugins/urbackup-check"
 
 # declare the check to Check_MK
 check_info["urbackup-check"] = {

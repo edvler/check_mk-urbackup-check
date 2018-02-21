@@ -39,7 +39,6 @@ description:
  
  Check https://github.com/edvler/check_mk_urbackup-check
  for more informations.
-
 inventory:
  One service will be created for each machine and backuptype
  (imagebackup and filebackup) in UrBackup.
