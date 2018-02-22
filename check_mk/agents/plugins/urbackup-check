@@ -3,7 +3,7 @@
 # Author: Matthias Maderer
 # E-Mail: edvler@edvler-blog.de
 # URL: https://github.com/edvler/check_mk_urbackup-check
-# License: See https://github.com/edvler/check_mk_urbackup-check
+# License: GPLv2
 
 import urbackup_api
 import configparser
