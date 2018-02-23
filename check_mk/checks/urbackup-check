@@ -25,9 +25,6 @@
 # If the date field contains "-" no backup was done for this machine.
 # Fileok and imageok represents the status of the UrBackup Status page.
 
-#from datetime import datetime
-import time
-
 # default parameters
 urbackup_check_default_levels = {'check_backup': 'check', 'backup_age': (93600, 108000), 'modi': 'use_backup_age'}
 
