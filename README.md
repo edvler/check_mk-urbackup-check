@@ -21,7 +21,7 @@ root@monitoring01:/opt/omd# find . -name urbackup-check
 ## On the UrBackup Server (NOT THE CHECK_MK SERVER!):
 1. Install UrBackup API. (https://github.com/uroni/urbackup-server-python-web-api-wrapper)
 2. Copy the plugin script [check_mk/agents/plugins/urbackup-check](check_mk/agents/plugins/urbackup-check) into /usr/lib/check_mk_agent/plugins/
-3. Chown uog+x /usr/lib/check_mk_agent/plugins/urbackup-check
+3. chmod 755 /usr/lib/check_mk_agent/plugins/urbackup-check
 4. Create urbackup-check.ini in $MK_CONFDIR folder (usually /etc/check_mk). See Template [etc/check_mk/urbackup-check.ini](etc/check_mk/urbackup-check.ini)
 5. Execute the script: /usr/lib/check_mk_agent/plugins/urbackup-check. If everythings works the output should look like this
 ```
