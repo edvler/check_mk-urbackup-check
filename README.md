@@ -19,6 +19,7 @@ root@monitoring01:/opt/omd# find . -name urbackup-check
 4. Goto your Check_mk webinterface. Choose WATO -> Host & Service Parameters. Search for urbackup.
 
 ## On the UrBackup Server (NOT THE CHECK_MK SERVER!):
+0. Install pip command: On Ubuntu: apt-get install python-pip && pip install urbackup-server-web-api-wrapper
 1. Install UrBackup API. (https://github.com/uroni/urbackup-server-python-web-api-wrapper)
 2. Copy the plugin script [check_mk/agents/plugins/urbackup-check](check_mk/agents/plugins/urbackup-check) into /usr/lib/check_mk_agent/plugins/
 3. chmod 755 /usr/lib/check_mk_agent/plugins/urbackup-check
