@@ -35,12 +35,10 @@ register_check_parameters(
                  elements = [
                      Age(title=_("Warning at or above a backupage of"),
                          default_value = 93600,
-                         display = [ "minutes" ],
                          help=_("If the backup is older than the specified time, the check changes to warning. (24h=1440m; 26h=1560m)")
                      ),
                      Age(title=_("Critical at or above a backupage of"),
                          default_value = 108000,
-                         display = [ "minutes" ],
                          help=_("If the backup is older than the specified time, the check changes to critical. (24h=1440m; 26h=1560m)")
                      ),
                  ]
