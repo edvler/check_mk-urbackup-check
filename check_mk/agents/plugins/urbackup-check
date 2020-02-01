@@ -40,6 +40,10 @@ clients = server.get_status()
 #generate output for check_mk
 print ('<<<urbackup-check>>>')
 for client in clients:
+
+    #Check if client is rejected (registered on another Urbackup server)
+    if "rejected" in client and client["rejected"] == True:
+        continue
     
     #Check if no backup exists
     if client["lastbackup"] == 0:
