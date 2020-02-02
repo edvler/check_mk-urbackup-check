@@ -45,7 +45,8 @@ def check_urbackup(item, params, info):
 
     #return 0 if check of backups should not be done
     if params['check_backup'] == 'ignore':
-        return 0, backup_type + ' check disabled by rule'
+        yield 0, backup_type + ' check disabled by rule'
+        return
 
     for line in info:
         machine_infos = line[0].split(";;;;;")
@@ -65,29 +66,40 @@ def check_urbackup(item, params, info):
 
             #if urbackup status is used ...
             if params['modi'] == 'use_urbackup_status' and status == 'True':
-                return 0, 'status reported by UrBackup is: True'
+                yield 0, 'status reported by UrBackup is: True'
+                return
             if params['modi'] == 'use_urbackup_status' and status == 'False':
-                return 2, 'status reported by UrBackup is: False'
+                yield 2, 'status reported by UrBackup is: False'
+                return
 
             #if backup age is used
             if stamp is not None:
                 old = time.time() - time.mktime(stamp)
                 
-                duration_formatted = pretty_time_delta(old)
-                infotext = 'last ' + backup_type + ' finished: ' + time.strftime("%Y-%m-%d %H:%M", stamp) + ' (' + duration_formatted + ' ago)'
-
                 warn, error = params['backup_age']
+                #duration_formatted = pretty_time_delta(old)
+                #infotext = 'last ' + backup_type + ' finished: ' + time.strftime("%Y-%m-%d %H:%M", stamp) + ' (' + duration_formatted + ' ago)'
+                infotext = 'last ' + backup_type + ': ' + time.strftime("%Y-%m-%d %H:%M", stamp) + ' (Age: ' + pretty_time_delta(old) + ' warn/crit at ' + pretty_time_delta(warn) + '/' + pretty_time_delta(error) + ')'
+
+                perfdata = [
+                    ( "backup_age", int(old), warn, error )
+                ]
+
                 if old >= error:
-                    return 2, infotext
+                    yield 2, infotext, perfdata
+                    return
                 if old >= warn:
-                    return 1, infotext
+                    yield 1, infotext, perfdata
+                    return
 
-                return 0, infotext
-
+                yield 0, infotext, perfdata
+                return
             else:
-                return 2, 'no ' + backup_type + ' done yet'
+                yield 2, 'no ' + backup_type + ' done yet'
+                return
 
-    return 3, "error occured in check plugin. Please post a issue on https://github.com/edvler/check_mk_urbackup-check/issues inlcuding the output of the agent plugin /usr/lib/check_mk_agent/plugins/urbackup-check"
+    yield 3, "error occured in check plugin. Please post a issue on https://github.com/edvler/check_mk_urbackup-check/issues inlcuding the output of the agent plugin /usr/lib/check_mk_agent/plugins/urbackup-check"
+    return
 
 # declare the check to Check_MK
 check_info["urbackup-check"] = {
@@ -112,10 +124,10 @@ def pretty_time_delta(seconds):
     hours, seconds = divmod(seconds, 3600)
     minutes, seconds = divmod(seconds, 60)
     if days > 0:
-        return '%s%d days %d hours %d minutes' % (sign_string, days, hours, minutes)
+        return '%s%dd %dh %dm' % (sign_string, days, hours, minutes)
     elif hours > 0:
-        return '%s%d hours %d minutes' % (sign_string, hours, minutes)
+        return '%s%dh %dm' % (sign_string, hours, minutes)
     elif minutes > 0:
-        return '%s%d minutes' % (sign_string, minutes)
+        return '%s%dm' % (sign_string, minutes)
     else:
-        return '0 minutes'
+        return '0m'
