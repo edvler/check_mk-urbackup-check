@@ -7,15 +7,15 @@ For a detailed description how to work with mkp's goto [https://mathias-kettner.
 
 ### Short tasks
 0. Login with your site user (user has the same name as the CMK-Site)
-1. copy the urbackup-check*.mkp (see [dist](dist) folder) to your Check_mk server into the /tmp folder.
+1. copy the urbackup_check*.mkp (see [dist](dist) folder) to your Check_mk server into the /tmp folder.
 2. mkp install /tmp/urbackup-check*.mkp (replace * with the current version)
 3. Check if installation worked
 ```
-SITEUSER@monitoring01:/opt/omd# find . -name urbackup-check
-./sites/XXXX/var/check_mk/packages/urbackup-check
-./sites/XXXX/local/share/check_mk/checks/urbackup-check
-./sites/XXXX/local/share/check_mk/checkman/urbackup-check
-./sites/XXXX/local/share/check_mk/agents/plugins/urbackup-check
+SITEUSER@monitoring01:/opt/omd# find . -name urbackup_check
+./sites/XXXX/var/check_mk/packages/urbackup_check
+./sites/XXXX/local/share/check_mk/checks/urbackup_check
+./sites/XXXX/local/share/check_mk/checkman/urbackup_check
+./sites/XXXX/local/share/check_mk/agents/plugins/urbackup_check
 ```
 4. Goto your Check_mk webinterface. Choose WATO -> Host & Service Parameters. Search for urbackup.
 
@@ -24,13 +24,13 @@ SITEUSER@monitoring01:/opt/omd# find . -name urbackup-check
 ```
   On Ubuntu 16.04.4: apt-get install python3-pip && pip3 install urbackup-server-web-api-wrapper
 ```
-2. Copy the plugin script [check_mk/agents/plugins/urbackup-check](check_mk/agents/plugins/urbackup-check) into /usr/lib/check_mk_agent/plugins/
-3. chmod 755 /usr/lib/check_mk_agent/plugins/urbackup-check
+2. Copy the plugin script [check_mk/agents/plugins/urbackup_check](check_mk/agents/plugins/urbackup_check) into /usr/lib/check_mk_agent/plugins/
+3. chmod 755 /usr/lib/check_mk_agent/plugins/urbackup_check
 4. Create urbackup-check.ini in $MK_CONFDIR folder (usually /etc/check_mk). See Template [etc/check_mk/urbackup-check.ini](etc/check_mk/urbackup-check.ini)
-5. Execute the script: /usr/lib/check_mk_agent/plugins/urbackup-check. If everythings works the output should look like this
+5. Execute the script: /usr/lib/check_mk_agent/plugins/urbackup_check. If everythings works the output should look like this
 ```
-root@urbackup-server:/usr/lib/check_mk_agent/plugins# ./urbackup-check
-<<<urbackup-check>>>
+root@urbackup-server:/usr/lib/check_mk_agent/plugins# ./urbackup_check
+<<<urbackup_check>>>
 FMT-PC;;;;;-;;;;;False;;;;;-;;;;;False
 NB03;;;;;-;;;;;False;;;;;2017-05-15_08:51;;;;;False
 PC01;;;;;2018-02-22_18:05;;;;;False;;;;;2018-02-22_18:36;;;;;True
