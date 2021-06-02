@@ -38,7 +38,7 @@ clients = server.get_status()
 #{'os_version_string': 'Microsoft Windows 7 Professional Service Pack 1 (build 7601), 32-Bit', 'groupname': '', 'os_simple': 'windows', 'online': False, 'ip': '-', 'name': 'FMT-PC', 'lastbackup_image': 0, 'delete_pending': '', 'last_filebackup_issues': 0, 'file_ok': False, 'lastseen': 1518290865, 'processes': [], 'status': 0, 'image_ok': False, 'id': 9, 'client_version_string': '2.1.17', 'lastbackup': 0}
 
 #generate output for check_mk
-print ('<<<urbackup-check>>>')
+print ('<<<urbackup_check>>>')
 for client in clients:
 
     #Check if client is rejected (registered on another Urbackup server)

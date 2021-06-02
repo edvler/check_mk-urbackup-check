@@ -98,14 +98,14 @@ def check_urbackup(item, params, info):
                 yield 2, 'no ' + backup_type + ' done yet'
                 return
 
-    yield 3, "error occured in check plugin. Please post a issue on https://github.com/edvler/check_mk_urbackup-check/issues inlcuding the output of the agent plugin /usr/lib/check_mk_agent/plugins/urbackup-check"
+    yield 3, "error occured in check plugin. Please post a issue on https://github.com/edvler/check_mk-urbackup-check/issues inlcuding the output of the agent plugin /usr/lib/check_mk_agent/plugins/urbackup_check"
     return
 
 # declare the check to Check_MK
-check_info["urbackup-check"] = {
+check_info["urbackup_check"] = {
     'check_function':            check_urbackup,
     'inventory_function':        inventory_urbackup,
-    'service_description':       'UrBackup',
+    'service_description':       'UrBackup %s',
     'group':                     'urbackup',
 }
 
