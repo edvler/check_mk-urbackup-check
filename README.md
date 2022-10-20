@@ -1,22 +1,14 @@
-# [Check MK](https://mathias-kettner.de/check_mk.html) Plugin to check [UrBackup](http://www.urbackup.org) backups
+# [Check MK](https://checkmk.com) Plugin to check [UrBackup](http://www.urbackup.org) backups
 
 # Installation
 
 ## On the Monitoring Server where Check_mk is installed:
-For a detailed description how to work with mkp's goto [https://mathias-kettner.de/cms_mkps.html](https://mathias-kettner.de/cms_mkps.html).
+For a detailed description how to work with mkp's goto [https://docs.checkmk.com/latest/de/mkps.html](https://docs.checkmk.com/latest/de/mkps.html).
 
 ### Short tasks
-0. Login with your site user (user has the same name as the CMK-Site)
-1. copy the urbackup_check*.mkp (see [dist](dist) folder) to your Check_mk server into the /tmp folder.
-2. mkp install /tmp/urbackup-check*.mkp (replace * with the current version)
-3. Check if installation worked
-```
-SITEUSER@monitoring01:/opt/omd# find . -name urbackup_check
-./sites/XXXX/var/check_mk/packages/urbackup_check
-./sites/XXXX/local/share/check_mk/checks/urbackup_check
-./sites/XXXX/local/share/check_mk/checkman/urbackup_check
-./sites/XXXX/local/share/check_mk/agents/plugins/urbackup_check
-```
+1. copy the XXXXXX.mkp (see [dist](dist) folder) to your Check_mk server into the /tmp folder.
+2. su - <SITE_NAME> (mkp has to be installed on every site you are running!)
+3. mkp install /tmp/XXXXXX.mkp (replace XXXXXX with the filename downloaded)
 4. Goto your Check_mk webinterface. Choose WATO -> Host & Service Parameters. Search for urbackup.
 
 ## On the UrBackup Server (NOT THE CHECK_MK SERVER!):

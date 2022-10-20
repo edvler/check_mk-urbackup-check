@@ -1,13 +1,29 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+
 # Author: Matthias Maderer
 # E-Mail: edvler@edvler-blog.de
 # URL: https://github.com/edvler/check_mk_urbackup-check
 # License: GPLv2
 
-register_check_parameters(
-    subgroup_os,
-    "urbackup",
-    _("UrBackup"),
-    Dictionary(
+from cmk.gui.i18n import _
+from cmk.gui.valuespec import (
+    Dictionary,
+    DropdownChoice,
+    Tuple,
+    Age,
+)
+
+from cmk.gui.plugins.wato import (
+    CheckParameterRulespecWithItem,
+    rulespec_registry,
+    RulespecGroupCheckParametersApplications,
+)
+
+def _parameter_urbackup_check():
+    return Dictionary(
+        required_keys=['check_backup'],
         elements = [
             ("check_backup",
              DropdownChoice(
@@ -16,7 +32,8 @@ register_check_parameters(
                  choices = [
                      ("ignore", _("disable")),
                      ("check", _("enable")),
-                 ]
+                 ],
+                 default_value='check',	
              )
             ),
             ("modi",
@@ -26,7 +43,8 @@ register_check_parameters(
                  choices = [
                      ("use_backup_age", _("Backup age: Use the warning an critical limits given under Age of Backup")),
                      ("use_urbackup_status", _("UrBackup status: Use the status of the UrBackup Status Page")),
-                 ]
+                 ],
+                 default_value='use_backup_age'
              )
             ),
             ('backup_age',
@@ -42,13 +60,30 @@ register_check_parameters(
                          help=_("If the backup is older than the specified time, the check changes to critical. (24h=1440m; 26h=1560m)")
                      ),
                  ]
-             )
-            ),
+            )
+          ),
         ]
-    ),
-    TextAscii(
-        title = _("Description"),
-        allow_empty = True
-    ),
-    match_type = "dict",
-)
+    )
+
+def _itemspec_urbackup_check():
+    return DropdownChoice(
+                 title = _("Filter by Backup-Type"),
+                 help=_("Filter by type of backup"),
+                 choices = [
+                     ("filebackup", _("UrBackup Filebackup")),
+                     ("imagebackup", _("UrBackup Imagebackup")),
+                 ],
+                 default_value='imagebackup'
+             )
+
+rulespec_registry.register(
+    CheckParameterRulespecWithItem(
+        check_group_name='urbackup',
+        group=RulespecGroupCheckParametersApplications,
+        item_spec=lambda: TextAscii(title=_('Urbackup Service item'), ),
+        #item_spec=_itemspec_urbackup_check,
+        match_type='dict',
+        parameter_valuespec=_parameter_urbackup_check,
+        title=lambda: _("Urbackup Check"),
+    ))
+

@@ -6,7 +6,7 @@ distribution: check_mk
 description:
  This check runs on Linux-Servers with UrBackup installed.
 
- It reads the current status via the UrBackup API.
+ The check reads the current status via the UrBackup API.
  See https://github.com/uroni/urbackup-server-python-web-api-wrapper
  for API informations.
 
@@ -30,10 +30,7 @@ description:
  inventory check.
 
  {Installation:}
- https://github.com/edvler/check_mk_urbackup-check/README.md
- 
- Check https://github.com/edvler/check_mk_urbackup-check
- for more informations.
+ https://github.com/edvler/check_mk-urbackup-check
 
 inventory:
  One service will be created for each client and backuptype

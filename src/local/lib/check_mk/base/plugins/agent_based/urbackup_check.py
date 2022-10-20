@@ -1,11 +1,13 @@
-#!/usr/bin/python
-
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 # Author: Matthias Maderer
 # E-Mail: edvler@edvler-blog.de
-# URL: https://github.com/edvler/check_mk_urbackup-check
+# URL: https://github.com/edvler/check_mk-urbackup-check
 # License: GPLv2
 
 
+from .agent_based_api.v1 import *
+import time
 
 # Example agent output
 # Format:
@@ -29,26 +31,26 @@
 urbackup_check_default_levels = {'check_backup': 'check', 'backup_age': (93600, 108000), 'modi': 'use_backup_age'}
 
 # the inventory function (dummy)
-def inventory_urbackup(info):
+def discovery_urbackup_check(section):
     # loop over all output lines of the agent
-    for line in info:
+    for line in section:
         arr_backups = line[0].split(';;;;;')
         machine_name = arr_backups[0]
-        yield machine_name + ' filebackup', "urbackup_check_default_levels"
-        yield machine_name + ' imagebackup', "urbackup_check_default_levels"
+        yield Service(item=machine_name + ' filebackup', parameters=urbackup_check_default_levels)
+        yield Service(item=machine_name + ' imagebackup', parameters=urbackup_check_default_levels)
 
 # the check function (dummy)
-def check_urbackup(item, params, info):
+def check_urbackup(item, params, section):
     #extract machine_name and backup_type
     machine_name = item[:-11].strip()
     backup_type = item[-11:].strip()
 
     #return 0 if check of backups should not be done
     if params['check_backup'] == 'ignore':
-        yield 0, backup_type + ' check disabled by rule'
+        yield (Result(state=State.OK, summary=backup_type + ' check disabled by rule'))
         return
 
-    for line in info:
+    for line in section:
         machine_infos = line[0].split(";;;;;")
 
         if machine_infos[0] == machine_name:
@@ -65,49 +67,43 @@ def check_urbackup(item, params, info):
                 stamp = getDateFromString(machine_infos[3])
 
             #if urbackup status is used ...
-            if params['modi'] == 'use_urbackup_status' and status == 'True':
-                yield 0, 'status reported by UrBackup is: True'
-                return
-            if params['modi'] == 'use_urbackup_status' and status == 'False':
-                yield 2, 'status reported by UrBackup is: False'
-                return
+            if params['modi'] == 'use_urbackup_status':
+                if status == 'True':
+                    yield (Result(state=State.OK, summary='status reported by UrBackup is: True'))
+                if status == 'False':
+                    yield (Result(state=State.CRIT, summary='status reported by UrBackup is: False'))
 
             #if backup age is used
-            if stamp is not None:
-                old = time.time() - time.mktime(stamp)
-                
-                warn, error = params['backup_age']
-                #duration_formatted = pretty_time_delta(old)
-                #infotext = 'last ' + backup_type + ' finished: ' + time.strftime("%Y-%m-%d %H:%M", stamp) + ' (' + duration_formatted + ' ago)'
-                infotext = 'last ' + backup_type + ': ' + time.strftime("%Y-%m-%d %H:%M", stamp) + ' (Age: ' + pretty_time_delta(old) + ' warn/crit at ' + pretty_time_delta(warn) + '/' + pretty_time_delta(error) + ')'
+            if params['modi'] == 'use_backup_age':
+                if stamp is None:
+                    yield (Result(state=State.CRIT, summary='no ' + backup_type + ' done yet'))
 
-                perfdata = [
-                    ( "backup_age", int(old), warn, error )
-                ]
+                if stamp is not None:
+                    old = time.time() - time.mktime(stamp)
+                    
+                    warn, crit = params['backup_age']
+                    infotext = 'last ' + backup_type + ': ' + render.datetime(time.mktime(stamp)) + ' (Age: ' + render.timespan(old) + ' warn/crit at ' + render.timespan(warn) + '/' + render.timespan(crit) + ')'
 
-                if old >= error:
-                    yield 2, infotext, perfdata
-                    return
-                if old >= warn:
-                    yield 1, infotext, perfdata
-                    return
+                    yield Metric('age', int(old), levels=(warn,crit), boundaries=(0, None))
 
-                yield 0, infotext, perfdata
-                return
-            else:
-                yield 2, 'no ' + backup_type + ' done yet'
-                return
+                    if old >= crit:
+                        yield (Result(state=State.CRIT, summary=infotext))
+                        return
+                    if old >= warn:
+                        yield (Result(state=State.WARN, summary=infotext))
+                        return
 
-    yield 3, "error occured in check plugin. Please post a issue on https://github.com/edvler/check_mk-urbackup-check/issues inlcuding the output of the agent plugin /usr/lib/check_mk_agent/plugins/urbackup_check"
-    return
+                    yield (Result(state=State.OK, summary=infotext))
 
-# declare the check to Check_MK
-check_info["urbackup_check"] = {
-    'check_function':            check_urbackup,
-    'inventory_function':        inventory_urbackup,
-    'service_description':       'UrBackup %s',
-    'group':                     'urbackup',
-}
+
+register.check_plugin(
+    name = "urbackup_check",
+    service_name = "Urbackup %s",
+    discovery_function = discovery_urbackup_check,
+    check_function = check_urbackup,
+    check_default_parameters = urbackup_check_default_levels,
+    check_ruleset_name = "urbackup"
+)
 
 def getDateFromString(datetime_string):
     try:
