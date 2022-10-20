@@ -5,6 +5,7 @@
                 'avaliable.',
  'download_url': 'https://github.com/edvler/check_mk-urbackup-check/releases',
  'files': {'agent_based': ['urbackup_check.py'],
+           'agents': ['plugins/urbackup_check'],
            'bin': [],
            'checkman': ['urbackup_check'],
            'doc': [],
