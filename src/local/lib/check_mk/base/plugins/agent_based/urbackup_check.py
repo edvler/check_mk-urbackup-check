@@ -8,6 +8,7 @@
 
 from .agent_based_api.v1 import *
 import time
+from datetime import datetime
 
 # Example agent output
 # Format:
@@ -79,10 +80,14 @@ def check_urbackup(item, params, section):
                     yield (Result(state=State.CRIT, summary='no ' + backup_type + ' done yet'))
 
                 if stamp is not None:
-                    old = time.time() - time.mktime(stamp)
-                    
+                    #old = time.time() - time.mktime(stamp)
+                    n = time.strftime('%Y-%m-%d_%H:%M%z',time.localtime())
+                    cdt = datetime.strptime(n, '%Y-%m-%d_%H:%M%z')
+                    olddt = cdt - stamp
+                    old = olddt.total_seconds()
+            
                     warn, crit = params['backup_age']
-                    infotext = 'last ' + backup_type + ': ' + render.datetime(time.mktime(stamp)) + ' (Age: ' + render.timespan(old) + ' warn/crit at ' + render.timespan(warn) + '/' + render.timespan(crit) + ')'
+                    infotext = 'last ' + backup_type + ': ' + render.datetime(stamp.timestamp()) + ' (Age: ' + render.timespan(old) + ' warn/crit at ' + render.timespan(warn) + '/' + render.timespan(crit) + ')'
 
                     yield Metric('age', int(old), levels=(warn,crit), boundaries=(0, None))
 
@@ -107,7 +112,7 @@ register.check_plugin(
 
 def getDateFromString(datetime_string):
     try:
-        d = time.strptime(datetime_string,"%Y-%m-%d_%H:%M")
+        d = datetime.strptime(datetime_string,"%Y-%m-%d_%H:%M%z")
         return d
     except ValueError:
         return None

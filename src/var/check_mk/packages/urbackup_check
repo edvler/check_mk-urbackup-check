@@ -16,9 +16,9 @@
            'pnp-templates': [],
            'web': ['plugins/wato/check_parameters_urbackup.py']},
  'name': 'urbackup_check',
- 'num_files': 3,
+ 'num_files': 4,
  'title': 'Plugin to check UrBackup status',
- 'version': '1.2.1',
+ 'version': '1.2.4',
  'version.min_required': '2.0.0',
- 'version.packaged': '2.0.0p4',
+ 'version.packaged': '2.1.0p16',
  'version.usable_until': None}

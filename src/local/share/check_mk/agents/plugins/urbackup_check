@@ -54,12 +54,12 @@ for client in clients:
     if client["lastbackup"] == 0:
         filestamp_conv='-'
     else:
-        filestamp_conv=time.strftime('%Y-%m-%d_%H:%M', unixTimeStampToDate(client["lastbackup"]))
+        filestamp_conv=time.strftime('%Y-%m-%d_%H:%M%z', unixTimeStampToDate(client["lastbackup"]))
 
     if client["lastbackup_image"] == 0:
         imagestamp_conv='-'
     else:
-        imagestamp_conv=time.strftime('%Y-%m-%d_%H:%M', unixTimeStampToDate(client["lastbackup_image"]))
+        imagestamp_conv=time.strftime('%Y-%m-%d_%H:%M%z', unixTimeStampToDate(client["lastbackup_image"]))
 
     #Print infos
     print ("{name};;;;;{filestamp};;;;;{fileok};;;;;{imagestamp};;;;;{imageok}".format(
