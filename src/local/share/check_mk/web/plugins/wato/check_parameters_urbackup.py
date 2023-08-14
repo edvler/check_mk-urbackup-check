@@ -25,6 +25,17 @@ def _parameter_urbackup_check():
     return Dictionary(
         required_keys=['check_backup'],
         elements = [
+            ("use_performance_data",
+             DropdownChoice(
+                 title = _("Enable (default) to collect metrics (create a graph for backup age)"),
+                 help=_("If enabled, backup age is provided as metric to check_mk. You may want to disable this, if you have many hosts."),
+                 choices = [
+                     ("enable", _("enable")),
+                     ("disable", _("disable")),
+                 ],
+                 default_value='enable',
+             )
+            ),
             ("check_backup",
              DropdownChoice(
                  title = _("Enable (default) or disable check of backup"),

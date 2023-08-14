@@ -4,34 +4,30 @@ author: Matthias Maderer <edvler@edvler-blog.de>
 license: GPLv2
 distribution: check_mk
 description:
- This check runs on Linux-Servers with UrBackup installed.
-
  The check reads the current status via the UrBackup API.
  See https://github.com/uroni/urbackup-server-python-web-api-wrapper
- for API informations.
+ for API informations.  
 
  There are two modi avaliable.
  
  {Use the status provided by UrBackup:}
- This is the same as Status page of the Urbackup Webserver 
- (the screen which shows if filebackup status and imagebackup status is ok or not.
- If the status is RED at the Urbackup Status page, then the check gets {critical}
- otherwise, if the status is GREEN then the check is {ok}.
+ This is the same as status page of the Urbackup Webinterface.
+ If the status is RED at the Webinterface, then the check changes to {critical}. If the status is GREEN then the check is {ok}.
 
  {Use the backup age to check if backup is valid:}
- The default is that the service gets {critical} if no backup exists or the backup is
- older than 30 hours. It gets {warning} if the backup is older than 26 hours.
+ The default is that the service changes to {critical} if no backup exists or the backup is
+ older than 30 hours. The check changes to {warning} if the backup is older than 26 hours.
 
  The {critical} and {warning} limits can be configured in WATO.
  The check can also be disabled for a client and for a backuptype (imagebackup and filebackup).
- Goto WATO - Host & Service Parameters. Search for urbackup.
+ Goto Service-Monitoring-Rules.
 
  {Newly added clients in UrBackup} are displayed as new service by the check_mk
- inventory check.
+ inventory check. For filesbackups only one service is created. For imagebackups one service is created per volume.
 
  {Installation:}
  https://github.com/edvler/check_mk-urbackup-check
 
 inventory:
- One service will be created for each client and backuptype
+ One service will be created for each filebackup. For imagebackups one service is created per volume.
  (imagebackup and filebackup) in UrBackup.

@@ -39,8 +39,7 @@ server = urbackup_api.urbackup_server(url, user, password)
 #query client infos
 clients = server.get_status()
 
-#Example string from api
-#{'os_version_string': 'Microsoft Windows 7 Professional Service Pack 1 (build 7601), 32-Bit', 'groupname': '', 'os_simple': 'windows', 'online': False, 'ip': '-', 'name': 'FMT-PC', 'lastbackup_image': 0, 'delete_pending': '', 'last_filebackup_issues': 0, 'file_ok': False, 'lastseen': 1518290865, 'processes': [], 'status': 0, 'image_ok': False, 'id': 9, 'client_version_string': '2.1.17', 'lastbackup': 0}
+arrayreturn = []
 
 #generate output for check_mk
 print ('<<<urbackup_check>>>')
@@ -50,22 +49,87 @@ for client in clients:
     if "rejected" in client and client["rejected"] == True:
         continue
 
-    #Check if no backup exists
-    if client["lastbackup"] == 0:
-        filestamp_conv='-'
-    else:
-        filestamp_conv=time.strftime('%Y-%m-%d_%H:%M%z', unixTimeStampToDate(client["lastbackup"]))
+    #get more informations for backuptype filebackup and imagebackup
+#    clientinfo = server.get_client_status(client['name'])
+    filebackups = server.get_clientbackups(client['id'])
+    imagebackups = server.get_clientimagebackups(client['id'])
 
-    if client["lastbackup_image"] == 0:
-        imagestamp_conv='-'
-    else:
-        imagestamp_conv=time.strftime('%Y-%m-%d_%H:%M%z', unixTimeStampToDate(client["lastbackup_image"]))
+    #Filebackup abfragen
+    last_filebackup = 0
+    for backup in filebackups:
+        if last_filebackup < backup['backuptime']:
+            last_filebackup = backup['backuptime']
 
-    #Print infos
-    print ("{name};;;;;{filestamp};;;;;{fileok};;;;;{imagestamp};;;;;{imageok}".format(
-           name=client["name"],
-           filestamp=filestamp_conv,
-           imagestamp=imagestamp_conv,
-           fileok=client["file_ok"],
-           imageok=client["image_ok"],
-           ))
+    if last_filebackup == 0:
+        filebackup_conv='-'
+    else:
+        filebackup_conv=time.strftime('%Y-%m-%d_%H:%M%z', unixTimeStampToDate(last_filebackup))
+
+    #Append filebackup information to array
+    arrayreturn.append({
+           "name": client["name"],
+           "type": "filebackup",
+           "letter": "filebackup",
+           "timestamp": filebackup_conv,
+           "urbackupstatus": client["file_ok"],
+           })
+
+    #Imagebackup query
+    last_imagebackup = {}
+    for backup in imagebackups:
+        if backup['letter'] not in last_imagebackup:
+            last_imagebackup[backup['letter']] = 0
+
+        if last_imagebackup[backup['letter']] < backup['backuptime']:
+            last_imagebackup[backup['letter']] = backup['backuptime']
+
+    #Append Imagebackup information to array
+    if len(last_imagebackup) > 0:
+        for letter in last_imagebackup:
+            arrayreturn.append({
+                "name": client["name"],
+                "type": "imagebackup",
+                "letter": letter,
+                "timestamp": time.strftime('%Y-%m-%d_%H:%M%z', unixTimeStampToDate(last_imagebackup[letter])),
+                "urbackupstatus": client["image_ok"],
+                })
+    else:
+            arrayreturn.append({
+                "name": client["name"],
+                "type": "imagebackup",
+                "letter": "No Imagebackup configured",
+                "timestamp": "0",
+                "urbackupstatus": "False"
+                })
+
+
+
+#Output all services for the urbackup server (all hosts are displayes as services within the urbackup server)
+for entry in arrayreturn:
+    print ("{name};;;;;{type};;;;;{letter};;;;;{timestamp};;;;;{urbackupstatus}".format(
+        name=entry["name"],
+        type=entry["type"],
+        letter=entry["letter"],
+        timestamp=entry["timestamp"],
+        urbackupstatus=entry["urbackupstatus"]
+        ))  
+
+#Piggyback https://docs.checkmk.com/latest/en/piggyback.html
+#For each host services are displayed within the backuped client itself in check_mk
+#If the clientname does not match. See Setup -> Agent access rules -> Hostname translation for piggybacked hosts (see link above)
+name=""
+for entry in arrayreturn:
+    #Print Header if hostname changes
+    if name != entry["name"]:
+        name = entry["name"]
+        print("<<<<" + entry["name"] + ">>>>")
+        print ('<<<urbackup_check>>>')
+
+    print ("{name};;;;;{type};;;;;{letter};;;;;{timestamp};;;;;{urbackupstatus}".format(
+          name=entry["name"],
+          type=entry["type"],
+          letter=entry["letter"],
+          timestamp=entry["timestamp"],
+          urbackupstatus=entry["urbackupstatus"]
+        ))  
+

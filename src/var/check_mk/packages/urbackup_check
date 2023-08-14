@@ -1,8 +1,9 @@
 {'author': 'Matthias Maderer <edvler@edvler-blog.de>',
  'description': 'Check status for each client existing in UrBackup. Each '
                 'backuptype (filebackup and imagebackup) is listed as '
-                'indepenent service for each machine. WATO configuration '
-                'avaliable.',
+                'indepenent service for each machine and each Driveletter '
+                '(imagebackups). WATO configuration avaliable. NEW: Piggyback '
+                'implemented',
  'download_url': 'https://github.com/edvler/check_mk-urbackup-check/releases',
  'files': {'agent_based': ['urbackup_check.py'],
            'agents': ['plugins/urbackup_check'],
@@ -18,7 +19,7 @@
  'name': 'urbackup_check',
  'num_files': 4,
  'title': 'Plugin to check UrBackup status',
- 'version': '1.2.4',
+ 'version': '2.0.3',
  'version.min_required': '2.0.0',
  'version.packaged': '2.1.0p16',
  'version.usable_until': None}
