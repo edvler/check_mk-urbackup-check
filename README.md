@@ -1,5 +1,9 @@
 # [Check MK](https://checkmk.com) Plugin to check [UrBackup](http://www.urbackup.org) backups
 
+# News
+Starting with Release 2.0.3 for each driveletter in Urbackup-Imagebackups one service is created in check_mk!
+The old Imagebackup service without a driveletter are change to UNKN.
+
 # Installation
 
 ## On the Monitoring Server where Check_mk is installed:
@@ -33,9 +37,6 @@ PC05;;;;;2017-10-02_00:08;;;;;False;;;;;2018-02-17_12:02;;;;;True
 pc-xx;;;;;-;;;;;False;;;;;2017-05-15_09:16;;;;;False
 swyx01;;;;;2018-02-23_00:02;;;;;True;;;;;2018-02-23_01:01;;;;;True
 ```
-
-## Functions of the plugin
-![](https://github.com/edvler/check_mk-urbackup-check/blob/master/docs/urbackup-check_man-page.png)
 
 ## Services screenshot
 ![](https://github.com/edvler/check_mk-urbackup-check/blob/master/docs/example-services-screenshot.png)
