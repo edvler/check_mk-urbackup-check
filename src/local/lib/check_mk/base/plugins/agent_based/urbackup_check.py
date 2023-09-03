@@ -140,9 +140,10 @@ def check_urbackup(item, params, section):
         return
 
     for line in section:
-        machine_infos = line[0].split(";;;;;")
+        line_as_string=' '.join(map(str,line))
+        machine_infos = line_as_string.split(";;;;;")
 
-        if check_name_urbackup(line[0]) == item:
+        if check_name_urbackup(line_as_string) == item:
             #if urbackup status is used ...
             if params['modi'] == 'use_urbackup_status':
                 if machine_infos[URBACKUPSTATUS].lower() == 'true':
@@ -155,7 +156,7 @@ def check_urbackup(item, params, section):
                 stamp = getDateFromString(machine_infos[TIMESTAMP])
 
                 if stamp is None:
-                    yield (Result(state=State.UNKNOWN, summary='no backup done yet or no last backup date reported by urbackup'))
+                    yield (Result(state=State.UNKNOWN, summary='No backup configured, no backup done yet or no last backup date reported by urbackup'))
 
                 if stamp is not None:
                     #old = time.time() - time.mktime(stamp)

@@ -19,7 +19,7 @@
  'name': 'urbackup_check',
  'num_files': 4,
  'title': 'Plugin to check UrBackup status',
- 'version': '2.0.3',
+ 'version': '2.0.4',
  'version.min_required': '2.0.0',
  'version.packaged': '2.1.0p16',
  'version.usable_until': None}
