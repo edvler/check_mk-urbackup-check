@@ -130,7 +130,8 @@ def check_name_urbackup(check_line):
 def discovery_urbackup_check(section):
     # loop over all output lines of the agent
     for line in section:
-        yield Service(item=check_name_urbackup(line[0]), parameters=urbackup_check_default_levels)
+        line_as_string=' '.join(map(str,line))
+        yield Service(item=check_name_urbackup(line_as_string), parameters=urbackup_check_default_levels)
 
 # the check function (dummy)
 def check_urbackup(item, params, section):
