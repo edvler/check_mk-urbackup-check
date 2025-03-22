@@ -20,6 +20,9 @@ For a detailed description how to work with mkp's goto [https://docs.checkmk.com
 ```
   On Ubuntu 16.04.4: apt-get install python3-pip && pip3 install urbackup-server-web-api-wrapper
 ```
+```
+  On Debian12/Ubuntu 24: apt-get install python3-pip && pip3 install urbackup-server-web-api-wrapper --break-system-packages
+```
 2. Copy the plugin script [check_mk/agents/plugins/urbackup_check](check_mk/agents/plugins/urbackup_check) into /usr/lib/check_mk_agent/plugins/
 3. chmod 755 /usr/lib/check_mk_agent/plugins/urbackup_check
 4. Create urbackup-check.ini in $MK_CONFDIR folder (usually /etc/check_mk). See Template [etc/check_mk/urbackup-check.ini](etc/check_mk/urbackup-check.ini)
