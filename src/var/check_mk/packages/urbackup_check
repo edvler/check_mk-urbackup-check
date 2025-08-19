@@ -1,25 +1,17 @@
-{'author': 'Matthias Maderer <edvler@edvler-blog.de>',
+{'author': 'Matthias Maderer <matthias.maderer@web.de>',
  'description': 'Check status for each client existing in UrBackup. Each '
                 'backuptype (filebackup and imagebackup) is listed as '
                 'indepenent service for each machine and each Driveletter '
                 '(imagebackups). WATO configuration avaliable. NEW: Piggyback '
                 'implemented',
  'download_url': 'https://github.com/edvler/check_mk-urbackup-check/releases',
- 'files': {'agent_based': ['urbackup_check.py'],
-           'agents': ['plugins/urbackup_check'],
-           'bin': [],
-           'checkman': ['urbackup_check'],
-           'doc': [],
-           'inventory': [],
-           'lib': [],
-           'mibs': [],
-           'notifications': [],
-           'pnp-templates': [],
-           'web': ['plugins/wato/check_parameters_urbackup.py']},
+ 'files': {'agents': ['plugins/urbackup_check'],
+           'cmk_addons_plugins': ['urbackup_check/agent_based/urbackup_check.py',
+                                  'urbackup_check/rulesets/urbackup_rulesets.py',
+                                  'urbackup_check/checkman/urbackup_check']},
  'name': 'urbackup_check',
- 'num_files': 4,
  'title': 'Plugin to check UrBackup status',
- 'version': '2.0.5',
- 'version.min_required': '2.0.0',
- 'version.packaged': '2.1.0p16',
+ 'version': '3.0.0',
+ 'version.min_required': '2.3.0',
+ 'version.packaged': 'cmk-mkp-tool 0.2.0',
  'version.usable_until': None}

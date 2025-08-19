@@ -1,12 +1,23 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+
 # Author: Matthias Maderer
-# E-Mail: edvler@edvler-blog.de
+# E-Mail: matthias.maderer@web.de
 # URL: https://github.com/edvler/check_mk-urbackup-check
 # License: GPLv2
 
 
-from .agent_based_api.v1 import *
+from cmk.agent_based.v2 import (
+    AgentSection,
+    CheckPlugin,
+    CheckResult,
+    DiscoveryResult,
+    Result,
+    Service,
+    State,
+    Metric,
+    render,
+    check_levels,
+)
 import time
 from datetime import datetime
 
@@ -182,15 +193,27 @@ def check_urbackup(item, params, section):
                     yield (Result(state=State.OK, summary=infotext))
 
 
-register.check_plugin(
+check_plugin_urbackup_check = CheckPlugin(
     name = "urbackup_check",
     service_name = "Urbackup %s",
     discovery_function = discovery_urbackup_check,
     check_function = check_urbackup,
-    check_default_parameters = urbackup_check_default_levels,
+    check_default_parameters = {'scrub_age': ('fixed',(604800, 864000)),
+                                'scrub_runtime': ('fixed',(3600, 7200))
+                                },
     check_ruleset_name = "urbackup"
 )
 
+
+#register.check_plugin(
+#    name = "urbackup_check",
+#    service_name = "Urbackup %s",
+#    discovery_function = discovery_urbackup_check,
+#    check_function = check_urbackup,
+#    check_default_parameters = urbackup_check_default_levels,
+#    check_ruleset_name = "urbackup"
+#)
+#
 def getDateFromString(datetime_string):
     try:
         d = datetime.strptime(datetime_string,"%Y-%m-%d_%H:%M%z")
