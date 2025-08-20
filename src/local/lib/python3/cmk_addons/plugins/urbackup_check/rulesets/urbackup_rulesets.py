@@ -6,41 +6,25 @@
 # License: GPLv2
 
 from cmk.rulesets.v1 import (
-    Help,
-    Label,
     Title,
 )
 from cmk.rulesets.v1.form_specs import (
     BooleanChoice,
     DefaultValue,
     DictElement,
-    DictGroup,
     Dictionary,
-    Integer,
     InputHint,
     LevelDirection,
-    List,
-    migrate_to_upper_integer_levels,
     migrate_to_upper_float_levels,
     SimpleLevels,
-    String,
     TimeMagnitude,
-    SIMagnitude,
-    IECMagnitude,
     TimeSpan,
-    validators,
-    DataSize,
-    Percentage,
     CascadingSingleChoice,
     CascadingSingleChoiceElement,
     FixedValue,
-    MultipleChoice,
-    MultipleChoiceElement
     )
 from cmk.rulesets.v1.rule_specs import (
-    AgentConfig,
     CheckParameters,
-    DiscoveryParameters,
     HostAndItemCondition,
     Topic,
 )
@@ -53,13 +37,18 @@ def _migrate_check_backup(model):
             return False
     return model
 
+def _migrate_modi(model):
+    if isinstance(model, str):
+        return (model, None)
+    return model
+
 def _parameter_urbackup():
     return Dictionary(
         ignored_elements=("use_performance_data"),
-        migrate=lambda model: {
-            'check_backup': _migrate_check_backup(model.get('check_backup', True)),
-            'backup_age': migrate_to_upper_float_levels(model.get('backup_age', (1.5 * 86400.0, 2 * 86400.0))),
-            'modi': model.get('modi', 'use_backup_age'),
+        migrate=lambda model: { #force defaults for with model.get(...,DEFAULT)
+            'check_backup': _migrate_check_backup(model.get('check_backup',True)),
+            'backup_age': migrate_to_upper_float_levels(model.get('backup_age',('fixed',(1.5 * 86400.0, 2 * 86400.0)))),
+            'modi': _migrate_modi(model.get('modi',('use_backup_age',None))),
         },
         elements = {
             'check_backup': DictElement(
@@ -67,7 +56,7 @@ def _parameter_urbackup():
                 parameter_form=BooleanChoice(    
                     #migrate=lambda model: _migrate_check_backup(model),
                     title=Title('Enable or disable check of backup (checked is enabled)'),                
-                    prefill=DefaultValue(False),
+                    prefill=DefaultValue(True),
                 )
             ),
 
@@ -76,7 +65,6 @@ def _parameter_urbackup():
                 parameter_form=CascadingSingleChoice(
                     title=Title('Modi: use the status provided by UrBackup (see Status Webpage of Urbackup), or use level from this check'),
                     prefill=DefaultValue("use_backup_age"),
-                    help_text=Help('Choose how the status of the backup should be determined.'),
                     #migrate= not needed! name of elements = values set with old plugin versions
                     elements=[
                         CascadingSingleChoiceElement(
@@ -95,8 +83,7 @@ def _parameter_urbackup():
 
             'backup_age': DictElement(
                 parameter_form=SimpleLevels(
-                    title = Title('Age of Backup before changing to warn or critical. This parameters are only used, if modi Backup Age is choosen!'),
-                    help_text = Help('Time period after which the check switches to warn/crit'),
+                    title = Title('Age of Backup before changing to warn or critical. This parameters are only used, if modi "Use levels defined in this check" is choosen!'),
                     #migrate = lambda model: migrate_to_upper_float_levels(model),
                     level_direction = LevelDirection.UPPER,
                     form_spec_template = TimeSpan(

@@ -116,15 +116,40 @@ from datetime import datetime
 # Fileok and imageok represents the status of the UrBackup Status page.
 # --> No filebackup FMT-PC;;;;;filebackup;;;;;filebackup;;;;;-;;;;;False
 
-
-# default parameters
-urbackup_check_default_levels = {'check_backup': 'check', 'backup_age': (93600, 108000), 'modi': 'use_backup_age', 'use_performance_data': 'enable'}
-
 CLIENT_NAME=0
 BACKUP_TYPE=1
 LETTER=2
 TIMESTAMP=3
 URBACKUPSTATUS=4
+
+def getDateFromString(datetime_string):
+    try:
+        d = datetime.strptime(datetime_string,"%Y-%m-%d_%H:%M%z")
+        return d
+    except ValueError:
+        return None
+
+def params_parser(params):
+    params_new = {}
+
+    for p in params:
+        if params[p] is not None and isinstance(params[p], tuple):
+            if params[p][0] in ("fixed", "no_levels", "predictive"): #e.g ('fixed', (1, 1)) - New Check_MK 2.4 format
+                params_new[p] = params[p]            
+            elif isinstance(params[p][0], (int, float)) and isinstance(params[p][1], (int, float)):
+                params_new[p] = ('fixed', (params[p][0], params[p][1]))
+            else:
+                params_new[p] = params[p]
+        else:
+            if isinstance(params[p], str) and p == 'check_backup':
+                params_new[p] = False if params[p] == 'ignore' else True
+            elif isinstance(params[p], str) and p == 'modi':
+                params_new[p] = (params[p], None)
+            else:   
+                params_new[p] = params[p]
+
+    
+    return params_new
 
 def check_name_urbackup(check_line):
     arr_backups = check_line.split(';;;;;')
@@ -142,12 +167,14 @@ def discovery_urbackup_check(section):
     # loop over all output lines of the agent
     for line in section:
         line_as_string=' '.join(map(str,line))
-        yield Service(item=check_name_urbackup(line_as_string), parameters=urbackup_check_default_levels)
+        yield Service(item=check_name_urbackup(line_as_string))
 
 # the check function (dummy)
 def check_urbackup(item, params, section):
+    params_cmk_24 = params_parser(params)
+
     #return 0 if check of backups should not be done
-    if params['check_backup'] == 'ignore':
+    if params_cmk_24['check_backup'] == False:
         yield (Result(state=State.OK, summary='check disabled by rule'))
         return
 
@@ -157,14 +184,14 @@ def check_urbackup(item, params, section):
 
         if check_name_urbackup(line_as_string) == item:
             #if urbackup status is used ...
-            if params['modi'] == 'use_urbackup_status':
+            if params_cmk_24['modi'][0] == 'use_urbackup_status':
                 if machine_infos[URBACKUPSTATUS].lower() == 'true':
                     yield (Result(state=State.OK, summary='status reported by UrBackup is: True'))
                 if machine_infos[URBACKUPSTATUS].lower() == 'false':
                     yield (Result(state=State.CRIT, summary='status reported by UrBackup is: False'))
 
             #if backup age is used
-            if params['modi'] == 'use_backup_age':
+            if params_cmk_24['modi'][0] == 'use_backup_age':
                 stamp = getDateFromString(machine_infos[TIMESTAMP])
 
                 if stamp is None:
@@ -177,11 +204,19 @@ def check_urbackup(item, params, section):
                     olddt = cdt - stamp
                     old = olddt.total_seconds()
             
-                    warn, crit = params['backup_age']
+                    levels = params_cmk_24['backup_age']
+                    if levels == None or levels ==("no_levels", None):
+                        yield (Result(state=State.OK, summary="No check levels defined!"))
+                        return
+                    
+                    if 'backup_age' not in params_cmk_24:
+                        yield (Result(state=State.UNKNOWN, summary="No backup_age defined, but - Use levels defined in this check - are choosen in rules!"))
+                        return
+
+                    warn, crit = params_cmk_24['backup_age'][1]
                     infotext = 'last ' + machine_infos[BACKUP_TYPE] + ': ' + render.datetime(stamp.timestamp()) + ' (Age: ' + render.timespan(old) + ' warn/crit at ' + render.timespan(warn) + '/' + render.timespan(crit) + ')'
                     
-                    if "use_performance_data" not in params or params['use_performance_data'] == 'enable':
-                        yield Metric('age', int(old), levels=(warn,crit), boundaries=(0, None))
+                    yield Metric('age', int(old), levels=(warn,crit), boundaries=(0, None))
 
                     if old >= crit:
                         yield (Result(state=State.CRIT, summary=infotext))
@@ -198,41 +233,10 @@ check_plugin_urbackup_check = CheckPlugin(
     service_name = "Urbackup %s",
     discovery_function = discovery_urbackup_check,
     check_function = check_urbackup,
-    check_default_parameters = {'scrub_age': ('fixed',(604800, 864000)),
-                                'scrub_runtime': ('fixed',(3600, 7200))
+    check_default_parameters = {
+                                'modi': ('use_backup_age',None),
+                                'check_backup': True,
+                                'backup_age': (1.5 * 86400.0, 2 * 86400.0),
                                 },
     check_ruleset_name = "urbackup"
 )
-
-
-#register.check_plugin(
-#    name = "urbackup_check",
-#    service_name = "Urbackup %s",
-#    discovery_function = discovery_urbackup_check,
-#    check_function = check_urbackup,
-#    check_default_parameters = urbackup_check_default_levels,
-#    check_ruleset_name = "urbackup"
-#)
-#
-def getDateFromString(datetime_string):
-    try:
-        d = datetime.strptime(datetime_string,"%Y-%m-%d_%H:%M%z")
-        return d
-    except ValueError:
-        return None
-
-#thanks to https://gist.github.com/thatalextaylor/7408395
-def pretty_time_delta(seconds):
-    sign_string = '-' if seconds < 0 else ''
-    seconds = abs(int(seconds))
-    days, seconds = divmod(seconds, 86400)
-    hours, seconds = divmod(seconds, 3600)
-    minutes, seconds = divmod(seconds, 60)
-    if days > 0:
-        return '%s%dd %dh %dm' % (sign_string, days, hours, minutes)
-    elif hours > 0:
-        return '%s%dh %dm' % (sign_string, hours, minutes)
-    elif minutes > 0:
-        return '%s%dm' % (sign_string, minutes)
-    else:
-        return '0m'
