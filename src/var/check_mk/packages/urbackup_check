@@ -10,7 +10,7 @@
                                   'urbackup_check/rulesets/urbackup_rulesets.py',
                                   'urbackup_check/checkman/urbackup_check']},
  'name': 'urbackup_check',
- 'title': 'Plugin to check UrBackup status',
+ 'title': 'UrBackup Check',
  'version': '3.0.5',
  'version.min_required': '2.3.0',
  'version.packaged': 'cmk-mkp-tool 0.2.0',
